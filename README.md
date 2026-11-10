@@ -1,360 +1,367 @@
 # E-Commerce Customer Behaviour and Purchase Prediction
 
-A machine learning project that uses historical e-commerce transaction
-data to study customer purchasing behaviour and, ultimately, predict
-whether an existing customer will make another **paid purchase within
-the next 90 days**.
+**An End-to-End Machine Learning Project | CSE570 – Machine Learning with Python**
 
-> **Project status:** Data integration, initial cleaning and exploratory
-> data analysis (EDA) have been completed. Feature engineering, target
-> construction, model development and evaluation are planned next.
+## Project Overview
 
-## 1. Project Overview
+This project focuses on analysing e-commerce customer purchasing behaviour and developing machine learning models to predict whether an existing customer will make another purchase within the next 90 days.
 
-Understanding which customers are likely to purchase again can help an
-e-commerce business improve customer retention, plan targeted campaigns
-and make better decisions.
+Using the **Online Retail II dataset**, the project follows an end-to-end machine learning workflow involving data collection, integration, data cleaning, exploratory data analysis (EDA), feature engineering, model development and evaluation.
 
-This project uses the **Online Retail II** transaction dataset. The
-original records are at transaction-line level. The planned modelling
-workflow will aggregate eligible transactions into customer-level
-features and construct a time-based binary target:
+The primary objective is to identify purchasing patterns and understand how historical customer behaviour can help predict future purchase activity.
 
--   `1`: the customer makes at least one qualifying paid purchase during
-    the following 90-day prediction window.
--   `0`: the customer does not make a qualifying paid purchase during
-    that window.
+## Problem Statement
 
-The prediction will use information available before the prediction
-window begins. This chronological design is intended to prevent data
-leakage.
+E-commerce businesses need to understand customer purchasing behaviour to improve customer retention and develop effective marketing strategies.
 
-## 2. Dataset
+This project addresses the problem through a supervised binary classification approach.
 
-**Dataset:** Online Retail II\
-**Source:** UCI Machine Learning Repository\
-**Dataset page:**
-https://archive.ics.uci.edu/dataset/502/online+retail+ii
+The prediction task is to determine whether a customer who has previously made purchases will make at least one additional qualifying purchase during the subsequent 90-day prediction window.
 
-The source workbook contains two sheets covering different periods:
+**Target Variable:** `RepeatPurchase_90D`
 
--   `Year 2009-2010`
--   `Year 2010-2011`
+- `1` – Customer makes at least one qualifying purchase within the next 90 days.
+- `0` – Customer does not make a qualifying purchase within the next 90 days.
 
-The sheets have the same structure and are combined vertically
-(row-wise) for analysis.
+## Project Objectives
 
-### Original columns
+- Analyse historical e-commerce transaction data.
+- Perform data cleaning and preprocessing.
+- Conduct univariate, bivariate and multivariate EDA.
+- Identify customer purchasing patterns and trends.
+- Engineer customer-level behavioural features.
+- Develop and compare multiple classification models.
+- Evaluate model performance using appropriate classification metrics.
+- Interpret important features influencing model predictions.
 
-  -----------------------------------------------------------------------
-  Column                              Description
-  ----------------------------------- -----------------------------------
-  `Invoice`                           Invoice identifier. Invoices
-                                      beginning with `C` indicate
-                                      cancellations.
+## Dataset
 
-  `StockCode`                         Product or stock identifier.
+**Dataset:** Online Retail II
 
-  `Description`                       Product description.
+**Source:** UCI Machine Learning Repository
 
-  `Quantity`                          Quantity recorded on the invoice
-                                      line.
+**Dataset Link:** https://archive.ics.uci.edu/dataset/502/online+retail+ii
 
-  `InvoiceDate`                       Date and time of the transaction.
+The dataset contains transactions from a UK-based online retail business.
 
-  `Price`                             Unit price.
+| Attribute | Details |
+|---|---|
+| Original combined records | 1,067,371 |
+| Original features | 8 |
+| Transaction period | December 2009 – December 2011 |
+| Source format | Excel workbook |
+| Dataset type | Transactional data |
 
-  `Customer ID`                       Customer identifier; some records
-                                      do not have an identified customer.
+### Original Dataset Features
 
-  `Country`                           Customer's country.
-  -----------------------------------------------------------------------
+| Feature | Description |
+|---|---|
+| Invoice | Invoice number |
+| StockCode | Product identifier |
+| Description | Product description |
+| Quantity | Number of products purchased |
+| InvoiceDate | Transaction date and time |
+| Price | Unit price |
+| Customer ID | Customer identifier |
+| Country | Customer's country |
 
-A derived column, `TotalAmount`, is calculated as:
+An additional transaction-level feature, `TotalAmount`, was created:
 
-``` python
-df['TotalAmount'] = df['Quantity'] * df['Price']
-```
+`TotalAmount = Quantity × Price`
 
-## 3. Data Preparation and Cleaning
+## Project Workflow
 
-The two source sheets were combined into one transaction dataset. The
-following cleaning operations were performed during the initial
-preparation:
+The project is organised into seven Jupyter notebooks, following a sequential machine learning workflow.
 
--   Removed exact duplicate records.
--   Filled missing product descriptions with `Unknown`.
--   Retained missing `Customer ID` values in the general transaction
-    dataset because those records may still be useful for
-    transaction-level analysis. Records without a customer identifier
-    will be excluded when constructing customer-level modelling data.
--   Converted `InvoiceDate` to a datetime data type.
--   Converted `Customer ID` to Pandas nullable integer type (`Int64`).
--   Created `TotalAmount` from `Quantity × Price`.
--   Removed negative-quantity records that were not associated with
-    cancellation invoices, based on the investigation performed.
--   Retained cancellation records in the transaction history, but they
-    must be excluded from qualifying paid-purchase calculations.
--   Removed zero-unit-price records for the paid-purchase analysis.
--   Removed five negative-price records identified as `Adjust bad debt`.
+| Notebook | Description |
+|---|---|
+| 1. Data Collection & Integration | Loading and combining the two Excel sheets |
+| 2. Data Understanding & Initial Inspection | Understanding dataset structure, data types and missing values |
+| 3. Data Cleaning | Handling duplicates, missing values, invalid records and data types |
+| 4. Exploratory Data Analysis (EDA) | Univariate, bivariate and multivariate analysis |
+| 5. Feature Engineering & Transformation | Creating customer-level features and the prediction target |
+| 6. Model Development | Data splitting, preprocessing, model training and saving |
+| 7. Model Evaluation & Interpretation | Performance comparison, feature importance and model interpretation |
 
-The original combined dataset was preserved separately from the cleaned
-working dataset.
+## Data Cleaning and Preprocessing
 
-**Important:** The cleaning decisions above describe the current project
-workflow. The final modelling dataset will apply additional
-purchase-specific filters and chronological rules.
+The following operations were performed:
 
-## 4. Exploratory Data Analysis (EDA)
+- Combined the two sheets of the original Excel workbook.
+- Identified and removed duplicate records.
+- Handled missing product descriptions.
+- Retained missing Customer IDs in the transaction dataset for general transaction-level analysis.
+- Converted `InvoiceDate` into datetime format.
+- Converted `Customer ID` into a nullable integer type.
+- Identified cancellation invoices and negative quantities.
+- Removed invalid non-cancellation negative-quantity records.
+- Removed zero-price and negative-price transactions from the qualifying paid-purchase dataset.
+- Created the `TotalAmount` feature.
 
-EDA was performed to understand the distributions, relationships and
-patterns in the transaction data.
+Outliers were inspected using statistical methods and visualisations rather than automatically removing all extreme values, as some may represent genuine transactions.
 
-### Analyses performed
+## Exploratory Data Analysis
 
-1.  **Univariate analysis**
-    -   Categorical frequency distributions.
-    -   Numerical descriptive statistics.
-    -   Histograms and distribution plots.
-    -   Skewness analysis.
-2.  **Outlier analysis**
-    -   Box plots.
-    -   Interquartile Range (IQR) method.
-    -   Outliers were investigated rather than automatically deleted,
-        since extreme values may represent genuine bulk purchases or
-        expensive products.
-3.  **Bivariate analysis**
-    -   Quantity versus TotalAmount.
-    -   Price versus TotalAmount.
-    -   Pearson correlation analysis.
-4.  **Country-wise analysis**
-    -   Country transaction-record frequency.
-    -   Average and total transaction amounts.
-    -   Country-level comparisons.
-5.  **Time-based analysis**
-    -   Monthly transaction activity.
-    -   Day-of-week activity.
-    -   Hourly transaction activity.
-6.  **Customer behaviour analysis**
-    -   Customer purchase frequency.
-    -   Customer spending.
-    -   Average transaction values.
-7.  **Multivariate analysis**
-    -   Numerical correlation heatmap.
-    -   Country-wise monthly transaction amount heatmap.
-8.  **Statistical analysis**
-    -   An independent Welch's t-test was used to compare transaction
-        amounts between the United Kingdom and other countries.
+EDA was performed to understand transaction characteristics and customer purchasing behaviour.
 
-### EDA interpretation notes
+The analysis included:
 
--   Quantity and Price showed strong positive skewness in the cleaned
-    transaction data.
--   TotalAmount showed negative skewness in the observed analysis.
--   The IQR method flagged extreme observations in Quantity, Price and
-    TotalAmount. These were not automatically removed.
--   Quantity and TotalAmount showed a strong positive Pearson
-    correlation in the analysis.
--   Price and TotalAmount showed a weak negative Pearson correlation in
-    the analysis.
+- Categorical and numerical feature analysis.
+- Descriptive statistics.
+- Histograms and box plots.
+- Skewness analysis and outlier inspection using the IQR method.
+- Country-wise transaction analysis.
+- Product and stock-code frequency analysis.
+- Quantity versus transaction amount analysis.
+- Price versus transaction amount analysis.
+- Monthly, weekly and hourly transaction patterns.
+- Customer-level purchasing behaviour.
+- Correlation analysis and heatmaps.
+- Statistical hypothesis testing.
 
-These are exploratory findings, not causal conclusions. In particular,
-`TotalAmount` is mathematically derived from Quantity and Price, and
-transaction-level records from the same customer are not statistically
-independent.
+These analyses helped identify purchasing patterns and provided a foundation for customer-level feature engineering.
 
-## 5. Planned Machine Learning Objective
+## Feature Engineering
 
-The main prediction task is **90-day repeat-purchase classification**.
+The modelling dataset was created using a historical observation period and a subsequent 90-day prediction period.
 
-For each eligible customer:
+### Prediction Window
 
--   Build features from transactions in a historical observation window.
--   Define a later, non-overlapping 90-day prediction window.
--   Set the target to `1` if the customer makes at least one qualifying
-    paid purchase during that future window; otherwise set it to `0`.
+| Period | Dates |
+|---|---|
+| Observation period | 1 December 2009 – 9 September 2011 |
+| Prediction period | 10 September 2011 – 8 December 2011 |
+| Prediction horizon | 90 days |
 
-The exact observation-window dates and eligibility rules must be defined
-before constructing the modelling dataset. Customers must have enough
-historical and future observation coverage to be labelled correctly.
+Only customers with qualifying historical purchases were included in the customer-level modelling dataset.
 
-### Planned customer-level features
+### Engineered Features
 
-Potential features include:
+Six customer-level features were created:
 
-  -----------------------------------------------------------------------
-  Feature                             Meaning
-  ----------------------------------- -----------------------------------
-  Recency                             Time since the customer's most
-                                      recent qualifying purchase in the
-                                      observation window.
+| Feature | Description |
+|---|---|
+| Recency | Number of days since the customer's last purchase |
+| Frequency | Number of unique historical invoices |
+| Monetary | Total historical spending |
+| AverageOrderValue | Average value of historical invoices |
+| ProductDiversity | Number of unique products purchased |
+| AvgItemsPerOrder | Average quantity of items per invoice |
 
-  Frequency                           Number of distinct purchase
-                                      invoices in the observation window.
+The target variable `RepeatPurchase_90D` was generated using customer purchase activity during the subsequent 90-day prediction period.
 
-  Monetary                            Total qualifying purchase amount in
-                                      the observation window.
+### Feature Transformation
 
-  Average Order Value                 Average invoice-level purchase
-                                      value.
+Skewed numerical features were examined and `log1p` transformation was applied to:
 
-  Total Quantity                      Total quantity purchased in the
-                                      observation window.
+- Frequency
+- Monetary
+- AverageOrderValue
+- ProductDiversity
+- AvgItemsPerOrder
 
-  Purchase Interval                   Typical time between a customer's
-                                      purchases, where sufficient history
-                                      exists.
-  -----------------------------------------------------------------------
+Recency was retained without logarithmic transformation.
 
-Only features calculated from information available before the
-prediction window will be used.
+StandardScaler was incorporated into preprocessing pipelines for scale-sensitive algorithms.
 
-## 6. Planned Modelling Workflow
+## Machine Learning Models
 
-The next stages are:
+This project uses supervised binary classification.
 
-1.  Create a purchase-only transaction dataset, excluding cancellations
-    and invalid/non-paid records according to the project definition.
-2.  Select chronological observation and 90-day prediction windows.
-3.  Aggregate historical transactions into customer-level features.
-4.  Create and inspect the binary target.
-5.  Check class balance and investigate potential leakage.
-6.  Split data using a time-aware strategy.
-7.  Build preprocessing pipelines so transformations are fitted on
-    training data only.
-8.  Train a baseline and at least three classification models.
-9.  Tune selected model hyperparameters using training data only.
-10. Evaluate on held-out data.
+The following models were developed and evaluated:
 
-### Planned models
+1. Dummy Classifier – Baseline model
+2. Logistic Regression
+3. Decision Tree
+4. Random Forest
+5. K-Nearest Neighbors (KNN)
+6. Support Vector Machine (SVM)
 
-Candidate models include:
+### Data Splitting
 
--   Dummy Classifier (baseline)
--   Logistic Regression
--   Decision Tree
--   Random Forest
--   Gradient-boosting model, such as XGBoost, if available and
-    appropriate
+The customer-level dataset contains 5,281 records and six model features.
 
-### Planned evaluation metrics
+The dataset was divided using:
 
--   Precision
--   Recall
--   F1-score
--   ROC-AUC
--   PR-AUC
--   Confusion matrix
+- Training set: 80%
+- Testing set: 20%
+- Random state: 42
+- Stratified splitting based on the target variable
 
-Accuracy will not be used alone, particularly if the target classes are
-imbalanced. Model interpretation and feature importance will also be
-examined.
+Preprocessing was performed through scikit-learn pipelines for Logistic Regression, KNN and SVM.
 
-## 7. Repository Structure
+Tree-based models were trained without feature scaling.
 
-The project is being organized into separate notebooks and data folders.
-A suggested structure is:
+## Model Evaluation
 
-``` text
-MLProject/
+Models were compared using:
+
+- Accuracy
+- Precision
+- Recall
+- F1-score
+- ROC-AUC
+- Confusion Matrix
+- Classification Report
+
+### Initial Model Comparison
+
+The following results were obtained before hyperparameter tuning.
+
+| Model | Accuracy | Precision | Recall | F1-score | ROC-AUC |
+|---|---:|---:|---:|---:|---:|
+| Random Forest | 0.7351 | 0.7119 | 0.6528 | 0.6811 | 0.7968 |
+| Logistic Regression | 0.7266 | 0.6979 | 0.6507 | 0.6734 | 0.8076 |
+| SVM | 0.7256 | 0.7049 | 0.6310 | 0.6659 | 0.7885 |
+| KNN | 0.7001 | 0.6643 | 0.6223 | 0.6426 | 0.7441 |
+| Decision Tree | 0.6386 | 0.5841 | 0.5764 | 0.5802 | 0.6313 |
+| Dummy Classifier | 0.5667 | 0.0000 | 0.0000 | 0.0000 | 0.5000 |
+
+### Initial Results
+
+- Random Forest achieved the highest accuracy of approximately 73.51%.
+- Random Forest achieved the highest F1-score of 0.6811.
+- Logistic Regression achieved the highest ROC-AUC of 0.8076.
+- The trained classification models outperformed the Dummy Classifier baseline.
+
+Based on accuracy and F1-score, Random Forest is the current leading model candidate.
+
+### Model Interpretation
+
+Random Forest feature importance and Logistic Regression coefficients were used to understand model behaviour.
+
+The Random Forest model identified Recency and Monetary as particularly influential features.
+
+Logistic Regression coefficients provided additional insight into the direction of the associations between customer behaviour features and predicted repeat-purchase likelihood.
+
+These feature interpretation results describe model behaviour and should not be interpreted as causal relationships.
+
+## Technologies and Libraries
+
+**Programming Language:** Python
+
+**Development Environment:** Jupyter Notebook
+
+**Libraries:**
+
+- pandas
+- NumPy
+- Matplotlib
+- Seaborn
+- SciPy
+- scikit-learn
+- joblib
+- openpyxl
+
+## Repository Structure
+
+```text
+CSE570_MachineLearningProject/
 │
 ├── data/
+│   ├── customer_features.csv
 │   ├── online_retail_combined.csv
-│   └── online_retail_working.csv
+│   ├── online_retail_working.csv
+│   └── test_dataset.csv
+│
+├── models/
+│   ├── baseline.pkl
+│   ├── logistic_regression.pkl
+│   ├── decision_tree.pkl
+│   ├── random_forest.pkl
+│   ├── knn.pkl
+│   └── svm.pkl
 │
 ├── notebooks/
-│   ├── 01_Data_Inspection.ipynb
-│   ├── 02_Data_Cleaning.ipynb
-│   ├── 04_Exploratory_Data_Analysis_(EDA).ipynb
-│   └── 05_Feature_Engineering.ipynb
+│   ├── 1. Data Collection & Integration.ipynb
+│   ├── 2. Data Understanding & Initial Inspection.ipynb
+│   ├── 3. Data Cleaning.ipynb
+│   ├── 4. Exploratory Data Analysis.ipynb
+│   ├── 5. Feature Engineering & Transformation.ipynb
+│   ├── 6. Model Development.ipynb
+│   └── 7. Model Evaluation & Interpretation.ipynb
 │
 ├── outputs/
-├── models/
+│
 ├── README.md
 └── requirements.txt
 ```
 
-Update the structure as additional notebooks, scripts and outputs are
-created. Do not commit large datasets or sensitive files to a public
-repository unless their licensing and distribution terms have been
-checked.
+## Installation and Setup
 
-## 8. Tools and Technologies
+### 1. Clone the repository
 
--   Python
--   Jupyter Notebook
--   Pandas
--   NumPy
--   Matplotlib
--   Seaborn
--   SciPy
--   Scikit-learn
+```bash
+git clone YOUR_GITHUB_REPOSITORY_URL
+```
 
-Additional libraries may be introduced during model development.
+### 2. Navigate to the project directory
 
-## 9. How to Run
+```bash
+cd CSE570_MachineLearningProject
+```
 
-1.  Clone or download this repository.
+### 3. Create a virtual environment (optional)
 
-2.  Install the required packages:
+```bash
+python -m venv venv
+```
 
-    ``` bash
-    pip install pandas numpy matplotlib seaborn scipy scikit-learn jupyter
-    ```
+Activate it on Windows:
 
-3.  Download the Online Retail II dataset from the UCI source linked
-    above.
+```bash
+venv\Scripts\activate
+```
 
-4.  Place the source workbook or prepared CSV files in the `data/`
-    directory.
+### 4. Install dependencies
 
-5.  Run the notebooks in the documented workflow order, updating file
-    paths if necessary.
+```bash
+pip install -r requirements.txt
+```
 
-The current notebook uses a local Windows path in places. Replace
-machine-specific paths with relative project paths before sharing the
-project.
+### 5. Launch Jupyter Notebook
 
-## 10. Limitations and Considerations
+```bash
+jupyter notebook
+```
 
--   Customer IDs are missing for a portion of the source transactions.
-    Such records cannot be assigned reliably to individual customers and
-    are excluded from customer-level modelling.
--   Cancellation invoices and returns must not be counted as successful
-    paid purchases in the target.
--   Zero-price records were excluded from the current paid-purchase
-    analysis; this is a project definition and should be documented
-    consistently.
--   Extreme values may be genuine business activity. They should be
-    investigated and handled based on their meaning and the modelling
-    method, not removed solely because they exceed an IQR threshold.
--   The transaction history has a finite date range. The observation and
-    prediction windows must fit within the available dates.
--   Time-based splitting is required to ensure that evaluation reflects
-    prediction on future periods.
--   Statistical significance does not necessarily imply practical
-    importance.
+Open the notebooks folder and execute the notebooks in numerical order.
 
-## 11. Project Status
+**Note:** Update dataset and model file paths in the notebooks if your local directory structure differs from the original development environment.
 
-  Stage                                 Status
-  ------------------------------------- --------------------------
-  Dataset collection and integration    Completed
-  Initial data inspection               Completed
-  Initial data cleaning                 Completed
-  Exploratory data analysis             Completed / under review
-  Feature engineering                   Next
-  90-day target construction            Pending
-  Model development                     Pending
-  Model evaluation and interpretation   Pending
-  Final report and presentation         Pending
+## Limitations
 
-## 12. Acknowledgement
+- The modelling dataset is based on a single observation cutoff and a 90-day prediction window.
+- The evaluation uses a random train-test split rather than multiple chronological validation periods.
+- The test set was used for model comparison and is therefore not an untouched final holdout.
+- Hyperparameter tuning has not yet been performed.
+- The dataset represents a historical retail business and may not reflect current e-commerce purchasing behaviour.
+- Feature importance and model coefficients indicate associations rather than causal effects.
 
-The transaction data used in this project is the **Online Retail II**
-dataset provided through the UCI Machine Learning Repository. Please
-refer to the original dataset page for its documentation, citation and
-usage information:
+## Future Improvements
 
+- Perform hyperparameter tuning using GridSearchCV or RandomizedSearchCV.
+- Evaluate models using additional chronological validation windows.
+- Investigate threshold optimisation for repeat-purchase classification.
+- Explore additional customer behavioural features.
+- Compare model performance after tuning.
+- Develop a simple prediction interface for customer-level predictions.
+- Prepare a comprehensive project report.
 
-https://archive.ics.uci.edu/dataset/502/online+retail+ii
+## References
+
+1. Chen, D. (2012). *Online Retail II*. UCI Machine Learning Repository. https://doi.org/10.24432/C5CG6D
+2. Pedregosa, F., et al. (2011). Scikit-learn: Machine Learning in Python. *Journal of Machine Learning Research*, 12, 2825–2830.
+3. McKinney, W. (2010). Data Structures for Statistical Computing in Python. *Proceedings of the 9th Python in Science Conference*.
+
+## Academic Project
+
+**Course:** CSE570 – Machine Learning with Python
+
+**Project Type:** End-to-End Machine Learning Classification Project
+
+**Specialisation:** Data Science and Analytics
+
+---
+
+*This project is being developed as part of an academic machine learning assignment. Model results and methodology may be updated as further validation and experimentation are completed.*
