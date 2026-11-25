@@ -226,15 +226,105 @@ The following results were obtained before hyperparameter tuning.
 
 Based on accuracy and F1-score, Random Forest is the current leading model candidate.
 
-### Model Interpretation
+## Hyperparameter Tuning
 
-Random Forest feature importance and Logistic Regression coefficients were used to understand model behaviour.
+After evaluating the initial models, hyperparameter tuning was performed to improve model performance and identify the most suitable configuration for the customer purchase prediction task.
 
-The Random Forest model identified Recency and Monetary as particularly influential features.
+**GridSearchCV** from Scikit-learn was used to search for the best hyperparameter combinations.
 
-Logistic Regression coefficients provided additional insight into the direction of the associations between customer behaviour features and predicted repeat-purchase likelihood.
+### Tuning Configuration
 
-These feature interpretation results describe model behaviour and should not be interpreted as causal relationships.
+| Parameter | Configuration |
+|---|---|
+| Search method | GridSearchCV |
+| Cross-validation | 5-Fold Stratified Cross-Validation |
+| Scoring metric | F1-score |
+| Dataset used for tuning | Training set only |
+| Model evaluation | Held-out test set |
+
+Stratified cross-validation maintains approximately the same target-class distribution across the folds. Each parameter combination is evaluated across five folds, and its average F1-score is used for comparison.
+
+### Best Hyperparameters
+
+| Model | Best Hyperparameters |
+|---|---|
+| Logistic Regression | `C=1`, `class_weight='balanced'` |
+| Decision Tree | `max_depth=5`, `min_samples_leaf=20`, `criterion='gini'` |
+| Random Forest | `n_estimators=200`, `max_depth=5`, `min_samples_leaf=1`, `max_features='sqrt'` |
+| KNN | `n_neighbors=31`, `weights='uniform'` |
+| SVM | `C=10`, `gamma='scale'` |
+
+### Cross-Validation Results
+
+| Model | Initial CV F1-score | Tuned CV F1-score |
+|---|---:|---:|
+| Logistic Regression | 0.669 | **0.692** |
+| Decision Tree | 0.575 | 0.653 |
+| Random Forest | 0.649 | 0.669 |
+| KNN | 0.634 | 0.670 |
+| SVM | 0.665 | 0.673 |
+
+Logistic Regression achieved the highest cross-validation F1-score of **0.692** after hyperparameter tuning.
+
+---
+
+## Final Model Evaluation
+
+After tuning, the models were evaluated on the held-out test dataset to compare their generalisation performance.
+
+### Tuned Model Comparison
+
+| Model | Accuracy | Precision | Recall | F1-score | ROC-AUC |
+|---|---:|---:|---:|---:|---:|
+| Logistic Regression | 0.727 | 0.667 | **0.736** | **0.700** | **0.808** |
+| Decision Tree | **0.746** | **0.733** | 0.653 | 0.691 | 0.796 |
+| Random Forest | 0.728 | 0.703 | 0.642 | 0.671 | 0.806 |
+| KNN | 0.721 | 0.689 | 0.648 | 0.668 | 0.790 |
+| SVM | 0.733 | 0.713 | 0.644 | 0.677 | 0.787 |
+
+### Final Model Selection: Logistic Regression
+
+Tuned Logistic Regression was selected as the final model because it achieved:
+
+- **F1-score:** 0.700
+- **Recall:** 0.736
+- **ROC-AUC:** 0.808
+- **Precision:** 0.667
+- **Accuracy:** 0.727
+
+Although Decision Tree achieved the highest accuracy, Logistic Regression provided the highest F1-score, recall and ROC-AUC among the tuned models.
+
+Since the project focuses on identifying customers likely to make repeat purchases, balancing precision and recall was important. Therefore, Logistic Regression was selected as the final model.
+
+### Key Takeaways
+
+- Hyperparameter tuning improved the cross-validation F1-score of all five models.
+- Logistic Regression achieved the highest tuned cross-validation F1-score.
+- Logistic Regression also achieved the highest test F1-score of 0.700.
+- Recency and Monetary were among the most influential customer behaviour features in the Random Forest feature-importance analysis.
+
+---
+
+## Conclusion
+
+This project demonstrates an end-to-end machine learning workflow for predicting customer repeat purchases using historical e-commerce transaction data.
+
+The project covers data integration, data cleaning, exploratory data analysis, customer-level feature engineering, preprocessing, model development, hyperparameter tuning and model evaluation.
+
+Five classification algorithms were compared, and GridSearchCV with five-fold stratified cross-validation was used to optimise their hyperparameters.
+
+The final tuned Logistic Regression model achieved an F1-score of 0.700 and ROC-AUC of 0.808 on the held-out test dataset.
+
+The results highlight the usefulness of historical purchasing behaviour, particularly Recency, Frequency and Monetary-related features, in understanding and predicting customer purchasing patterns.
+
+### Limitations and Future Improvements
+
+- The dataset represents historical retail transactions and may not reflect current purchasing behaviour.
+- Customers without Customer IDs could not be included in customer-level modelling.
+- The prediction target is based on a single historical 90-day window.
+- Chronological validation across multiple time periods could provide a stronger assessment of temporal generalisation.
+- Additional features such as product categories, customer location and purchasing seasonality could be explored.
+- Future work could include probability calibration, threshold optimisation and deployment through a web-based prediction interface.
 
 ## Technologies and Libraries
 
